@@ -4,22 +4,22 @@ import email
 import os
 load_dotenv()
 
-username = os.getenv('EMAIL')
-password = os.getenv('PASSWORD')
+username = os.getenv("EMAIL")
+password = os.getenv("PASSWORD")
 
-def connect_to_email():
-    mail = imaplib.IMAP4_SSL('imap-mail.outlook.com')
+def connect_to_mail():
+    mail = imaplib.IMAP4_SSL("imap-mail.outlook.com")
     mail.login(username, password)
     mail.select('inbox')
     return mail
 
 def search_for_email():
-    mail = connect_to_email()
+    mail = connect_to_mail()
     _, search_data = mail.search(None, '(BODY "unsubscribe")')
     data = search_data[0].split()
 
     for num in data:
-        _, data = mail.fetch(num, '(RFC822)')
+        _, data = mail.fetch(num, "(RFC822)")
         msg = email.message_from_bytes(data[0][1])
 
         if msg.is_multipart():
