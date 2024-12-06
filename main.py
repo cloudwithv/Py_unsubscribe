@@ -3,6 +3,7 @@ from bs4 import BeautifulSoup
 import imaplib
 import email
 import os
+import requests
 load_dotenv()
 
 username = os.getenv("EMAIL")
@@ -18,6 +19,16 @@ def extract_links_from_html(html_content):
     soup = BeautifulSoup(html_content, 'html.parser')
     links = [link["href"] for link in soup.find_all("a", href=True) if "unsubscribe" in link["href"].lower()]
     return links
+
+def click_link(link):
+    try:
+        response = requests.get(link)
+        if response.status_code == 200:
+            print("successfully visited", link)
+        else:
+            print("failed to visit", link, "error code:", response.status_code)
+    except Exception as e:
+        print("Error with", link, str(e))
 
 def search_for_email():
     mail = connect_to_mail()
@@ -45,5 +56,13 @@ def search_for_email():
     mail.logout()
     return links
 
+def save_links(links):
+    with open("links.txt", "w") as f:
+        for link in links:
+            f.write("\n".join(links))
+
 links = search_for_email()
-print(links)
+for link in links:
+    click_link(link)
+
+save_links(links)
